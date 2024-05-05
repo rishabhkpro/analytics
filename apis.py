@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from model import Event
@@ -91,7 +91,12 @@ async def location_update(
 
 
 @router.get("/events", status_code=200, response_model=EventsDataDto)
-async def get_events(db: Session = Depends(get_db)):
+async def get_events(
+    event_date: str = Query("", description="Date format is yyyy-mm-dd"),
+    user_name: str = Query("", description="Retreaving basing on user name status"),
+    api_status: str = Query("", description="Retreaving basing on api status"),
+    db: Session = Depends(get_db),
+):
     events_data = db.query(Event).all()
     events_dto = []
     for event in events_data:
