@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import apis
 from logging_config import init_log_config, LogMiddleware
-from fastapi.middleware.cors import CORSMiddleware
+from database import Base, engine
 
 
 def start_app():
@@ -24,7 +25,10 @@ def start_app():
     return fastapi_app
 
 
+Base.metadata.create_all(bind=engine)
+
 app = start_app()
+
 app.add_middleware(LogMiddleware)
 app.add_middleware(
     CORSMiddleware,
