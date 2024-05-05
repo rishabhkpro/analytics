@@ -31,3 +31,9 @@ Execute `pip3 install -r requirements.txt` to install all dependenceis for this 
 - Execute below command to see API contract in openAPI format.
 
   `http://localhost:8000/docs#/`
+
+### Event logs and Data
+
+- Event logs are stored in `./logs` folder. This folder can be configurable. You can update this path in `logging_config.py` file
+
+- Events data will be stored `events` table in the database. This can be used for analystics and dashboard data display.

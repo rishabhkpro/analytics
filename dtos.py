@@ -30,3 +30,17 @@ class UserLoginDto(UserCreateDto):
 
 class LocationUpdateDto(EventDto):
     user_name: str
+
+
+class EventDataDto(EventDto):
+    user_name: str
+    api_method: str
+    api_url: str
+    api_body: str
+    api_status: str
+    created_at: str
+
+
+class EventsDataDto(CamelModel):
+    body: List[EventDataDto]
+    msg: str

@@ -2,18 +2,27 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from model import Event
-from dtos import UserCreateDto, UserLoginDto, LocationUpdateDto
+from dtos import (
+    UserCreateDto,
+    UserLoginDto,
+    LocationUpdateDto,
+    EventDataDto,
+    EventsDataDto,
+)
 from database import get_db
 
 router = APIRouter()
 
 
-@router.post("/create")
+@router.post("/create", status_code=201)
 async def create_user(
     request_body: UserCreateDto,
     request: Request,
     db: Session = Depends(get_db),
 ):
+
+    # delete password before storing request body
+    del request_body.user_password
 
     even_data = Event(user_name=request_body.user_name)
     even_data.api_url = request.url.path
@@ -33,12 +42,16 @@ async def create_user(
     return "user created"
 
 
-@router.post("/login")
+@router.post("/login", status_code=200)
 async def login(
     request_body: UserLoginDto,
     request: Request,
     db: Session = Depends(get_db),
 ):
+
+    # delete password before storing request body
+    del request_body.user_password
+
     even_data = Event(user_name=request_body.user_name)
     even_data.api_url = request.url.path
     even_data.api_method = request.method
@@ -56,7 +69,7 @@ async def login(
     return "Login success"
 
 
-@router.post("/location/update")
+@router.post("/location/update", status_code=200)
 async def location_update(
     request_body: LocationUpdateDto,
     request: Request,
@@ -75,3 +88,23 @@ async def location_update(
     db.flush()
     db.commit()
     return "Event Logged"
+
+
+@router.get("/events", status_code=200, response_model=EventsDataDto)
+async def get_events(db: Session = Depends(get_db)):
+    events_data = db.query(Event).all()
+    events_dto = []
+    for event in events_data:
+        temp = EventDataDto(
+            user_name=event.user_name,
+            api_method=event.api_method,
+            api_url=event.api_url,
+            api_body=event.api_body,
+            lat=event.lat,
+            long=event.long,
+            api_status=event.api_status,
+            created_at=event.created_at.strftime("%d-%m-%Y %H:%M:%S"),
+        )
+        events_dto.append(temp)
+
+    return EventsDataDto(body=events_dto, msg="success")
