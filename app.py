@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 import apis
+from logging_config import init_log_config, LogMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def start_app():
+    init_log_config()
 
     fastapi_app = FastAPI(
         title="Analytics",
@@ -22,6 +25,13 @@ def start_app():
 
 
 app = start_app()
-
+app.add_middleware(LogMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(apis.router)
